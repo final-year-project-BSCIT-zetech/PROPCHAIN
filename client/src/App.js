@@ -1,10 +1,12 @@
 import { useState } from "react";
 import Web3 from "web3";
+import { useNavigate } from 'react-router-dom';
 import "./App.css";
 
 const MyContract = require("./contracts/MyContract.json");
 
 function App() {
+  const navigate = useNavigate();
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState([]);
   const [contract, setContract] = useState(null);
@@ -75,25 +77,11 @@ function App() {
 
   return (
     <div>
-      <h1>Blockchain DApp</h1>
-
       {!isConnected ? (
         <button onClick={connectWallet}>Connect Wallet</button>
       ) : (
-        <>
-          <h2>Wallet Connected ✅</h2>
-          <p>Account: {accounts[0]}</p>
 
-          <h3>Enter a number to store on the Blockchain</h3>
-          <input
-            type="number"
-            value={number}
-            onChange={(e) => setNumber(e.target.value)}
-          />
-          <button onClick={handleSendData}>Send to Blockchain</button>
-
-          {blockchainData && <p>Blockchain Data: {Number(blockchainData)}</p>}
-        </>
+        { navigate('/');}
       )}
     </div>
   );
