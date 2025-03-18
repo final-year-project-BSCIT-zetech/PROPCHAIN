@@ -1,68 +1,100 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Web3 from "web3";
 import "./App.css";
-import { Web3 } from "web3";
+
 const MyContract = require("./contracts/MyContract.json");
 
 function App() {
+  const [web3, setWeb3] = useState(null);
+  const [accounts, setAccounts] = useState([]);
+  const [contract, setContract] = useState(null);
   const [number, setNumber] = useState(0);
   const [blockchainData, setBlockchainData] = useState(null);
-  const [accounts, setAccounts] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
 
-  useEffect(() => {
-    const init = async () => {
-      const web3 = new Web3("http://localhost:8545");
-      const id = await web3.eth.net.getId();
-      const deployedNetwork = MyContract.networks[id];
+  const connectWallet = async () => {
+    if (!window.ethereum) {
+      alert("⚠️ MetaMask not found! Please install it.");
+      return;
+    }
 
-      web3.eth.getBlockNumber().then((latestBlock) => {
-        console.log(`✅ Connected to Blockchain. Latest Block: ${latestBlock}`);
-      });
+    try {
+      // Request account access
+      const web3Instance = new Web3(window.ethereum);
+      await window.ethereum.request({ method: "eth_requestAccounts" });
 
-      const contract = new web3.eth.Contract(
+      const userAccounts = await web3Instance.eth.getAccounts();
+      setWeb3(web3Instance);
+      setAccounts(userAccounts);
+      setIsConnected(true);
+
+      console.log("✅ Connected to MetaMask:", userAccounts[0]);
+
+      // Get network ID
+      const networkId = await web3Instance.eth.net.getId();
+      const deployedNetwork = MyContract.networks[networkId];
+
+      if (!deployedNetwork) {
+        alert("⚠️ Smart contract not deployed on this network.");
+        return;
+      }
+
+      // Load contract
+      const contractInstance = new web3Instance.eth.Contract(
         MyContract.abi,
         deployedNetwork.address
       );
 
-      const result = await contract.methods.getData().call();
+      setContract(contractInstance);
+
+      // Fetch initial data from the contract
+      const result = await contractInstance.methods.getData().call();
       setBlockchainData(result);
-
-      const address = await web3.eth.getAccounts();
-      setAccounts(address);
-    };
-    init();
-  }, []);
-
-  const handleSendData = async () => {
-    if (accounts && accounts.length > 0) {
-      const web3 = new Web3("http://localhost:8545"); // ✅ Corrected Web3 instantiation
-      const networkId = await web3.eth.net.getId(); // ✅ Get network ID
-      const deployedNetwork = MyContract.networks[networkId];
-  
-      if (!deployedNetwork) {
-        console.error("Contract not deployed on this network");
-        return;
-      }
-  
-      const contract = new web3.eth.Contract(MyContract.abi, deployedNetwork.address);
-      
-      await contract.methods.setData(number).send({ from: accounts[0] });
-      
-      const data = await contract.methods.getData().call();
-      setBlockchainData(data);
+    } catch (error) {
+      console.error("⚠️ Error connecting to MetaMask:", error);
+      alert("Error connecting to MetaMask. Please try again.");
     }
   };
-  
+
+  const handleSendData = async () => {
+    if (!isConnected || !contract) {
+      alert("⚠️ Please connect your wallet first!");
+      return;
+    }
+
+    try {
+      await contract.methods.setData(number).send({ from: accounts[0] });
+
+      const data = await contract.methods.getData().call();
+      setBlockchainData(data);
+    } catch (error) {
+      console.error("⚠️ Transaction error:", error);
+      alert("Transaction failed. Check console for details.");
+    }
+  };
 
   return (
     <div>
-      <h1>Enter the number you want to insert to the Blockchain</h1>
-      <input
-        type="number"
-        value={number}
-        onChange={(e) => setNumber(e.target.value)}
-      />
-      <button onClick={handleSendData}>Send to Blockchain</button>
-      {blockchainData && <p>Blockchain Data: {Number(blockchainData)}</p>}
+      <h1>Blockchain DApp</h1>
+
+      {!isConnected ? (
+        <button onClick={connectWallet}>Connect Wallet</button>
+      ) : (
+        <>
+          <h2>Wallet Connected ✅</h2>
+          <p>Account: {accounts[0]}</p>
+
+          <h3>Enter a number to store on the Blockchain</h3>
+          <input
+            type="number"
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
+          />
+          <button onClick={handleSendData}>Send to Blockchain</button>
+
+          {blockchainData && <p>Blockchain Data: {Number(blockchainData)}</p>}
+        </>
+      )}
     </div>
   );
 }
