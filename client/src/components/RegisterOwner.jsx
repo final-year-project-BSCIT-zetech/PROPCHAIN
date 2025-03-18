@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const RegisterOwner = ({ onRegisterOwner }) => {
   const [ownerData, setOwnerData] = useState({
@@ -12,6 +13,9 @@ const RegisterOwner = ({ onRegisterOwner }) => {
     onRegisterOwner(ownerData);
     setOwnerData({ ownerId: '', name: '', address: '' });
   };
+  <Link to="/admin" className="back-link">
+  &larr; Back to Dashboard
+</Link>
 
   return (
     <div className="form-container">

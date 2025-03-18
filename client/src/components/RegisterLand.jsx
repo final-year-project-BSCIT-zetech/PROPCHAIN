@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const RegisterLand = ({ owners, onRegisterLand }) => {
   const [landData, setLandData] = useState({
@@ -11,6 +12,9 @@ const RegisterLand = ({ owners, onRegisterLand }) => {
     onRegisterLand(landData);
     setLandData({ landId: '', ownerId: '' });
   };
+  <Link to="/admin" className="back-link">
+  &larr; Back to Dashboard
+</Link>
 
   return (
     <div className="form-container">
