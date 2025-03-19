@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import AdminDashboard from "./components/AdminDashboard"
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import Web3 from "web3";
-import AdminNavbar from './components/AdminNavbar';
-import RegisterOwner from './components/RegisterOwner';
-import RegisterLand from './components/RegisterLand';
-import './App.css';
+import AdminNavbar from "./components/AdminNavbar";
+import RegisterOwner from "./components/RegisterOwner";
+import RegisterLand from "./components/RegisterLand";
+import "./App.css";
 
 const MyContract = require("./contracts/MyContract.json");
 
@@ -23,43 +29,53 @@ const App = () => {
 
   return (
     <Router>
-      <ForceRedirect isConnected={isConnected} isFirstRender={isFirstRender} /> {/* ✅ Redirects to `/wallet-connect` first */}
+      <ForceRedirect isConnected={isConnected} isFirstRender={isFirstRender} />{" "}
+      {/* ✅ Redirects to `/wallet-connect` first */}
       <AdminNavbar />
-
       <Routes>
-        <Route 
+        <Route
           path="/wallet-connect"
-          element={<WalletConnect isConnected={isConnected} setIsConnected={setIsConnected} setWeb3={setWeb3} setAccounts={setAccounts} setContract={setContract} />} 
+          element={
+            <WalletConnect
+              isConnected={isConnected}
+              setIsConnected={setIsConnected}
+              setWeb3={setWeb3}
+              setAccounts={setAccounts}
+              setContract={setContract}
+            />
+          }
         />
 
-        <Route 
-          path="/admin/registerOwner" 
+        <Route
+          path="/admin/registerOwner"
           element={
-            <RegisterOwner 
+            <RegisterOwner
               onRegisterOwner={(ownerData) => {
                 setOwners((prevOwners) => [...prevOwners, ownerData]);
-                alert('✅ Owner registered successfully!');
-              }} 
+                alert("✅ Owner registered successfully!");
+              }}
             />
-          } 
+          }
         />
-
-        <Route 
-          path="/admin/registerLand"  
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route
+          path="/admin/registerLand"
           element={
-            <RegisterLand 
+            <RegisterLand
               owners={owners}
               onRegisterLand={(landData) => {
-                const ownerExists = owners.some(owner => owner.ownerId === landData.ownerId);
+                const ownerExists = owners.some(
+                  (owner) => owner.ownerId === landData.ownerId
+                );
                 if (!ownerExists) {
-                  alert('❌ Error: Owner ID not found!');
+                  alert("❌ Error: Owner ID not found!");
                   return;
                 }
                 setLands((prevLands) => [...prevLands, landData]);
-                alert('✅ Land registered successfully!');
-              }} 
+                alert("✅ Land registered successfully!");
+              }}
             />
-          } 
+          }
         />
       </Routes>
     </Router>
@@ -72,7 +88,7 @@ const ForceRedirect = ({ isConnected, isFirstRender }) => {
 
   useEffect(() => {
     if (!isConnected && !isFirstRender) {
-      navigate('/wallet-connect');
+      navigate("/wallet-connect");
     }
   }, [isConnected, isFirstRender, navigate]);
 
@@ -80,7 +96,13 @@ const ForceRedirect = ({ isConnected, isFirstRender }) => {
 };
 
 // ✅ Fix: Ensure Wallet Connect button is visible
-const WalletConnect = ({ isConnected, setIsConnected, setWeb3, setAccounts, setContract }) => {
+const WalletConnect = ({
+  isConnected,
+  setIsConnected,
+  setWeb3,
+  setAccounts,
+  setContract,
+}) => {
   const navigate = useNavigate();
 
   const connectWallet = async () => {
@@ -116,7 +138,7 @@ const WalletConnect = ({ isConnected, setIsConnected, setWeb3, setAccounts, setC
       setContract(contractInstance);
 
       // ✅ Redirect to `/admin/registerOwner` after successful wallet connection
-      navigate('/admin/registerOwner');
+      navigate("/admin/registerOwner");
     } catch (error) {
       console.error("⚠️ Error connecting to MetaMask:", error);
       alert("Error connecting to MetaMask. Please try again.");
@@ -124,9 +146,19 @@ const WalletConnect = ({ isConnected, setIsConnected, setWeb3, setAccounts, setC
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}> {/* ✅ Fix: Ensure button is visible */}
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      {" "}
+      {/* ✅ Fix: Ensure button is visible */}
       {!isConnected ? (
-        <button onClick={connectWallet} style={{ padding: "10px 20px", marginTop:"10em", fontSize: "18px", cursor: "pointer" }}>
+        <button
+          onClick={connectWallet}
+          style={{
+            padding: "10px 20px",
+            marginTop: "10em",
+            fontSize: "18px",
+            cursor: "pointer",
+          }}
+        >
           Connect Wallet
         </button>
       ) : (
