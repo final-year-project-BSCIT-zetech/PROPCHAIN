@@ -11,8 +11,8 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.3.0",
     "react-scripts": "5.0.1",
-    "router-dom": "^3.0.3",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "web3": "^4.16.0"
   },
   "scripts": {
     "start": "react-scripts start",
