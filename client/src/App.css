@@ -67,6 +67,7 @@ margin-right: 20em;
   width: 400px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin-left: 30em;
+  margin-top: 100px;
 }
 
 form {
@@ -111,4 +112,8 @@ button:hover {
 
 .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+.dashboard-container {
+  justify-content: center;
+  margin-top: 70px;
 }
