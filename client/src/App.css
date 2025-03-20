@@ -1,6 +1,25 @@
 .App {
   text-align: center;
 }
+.wallet-container {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.connect-btn {
+  padding: 10px 20px;
+  margin-top: 10em;
+  font-size: 18px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.connect-btn:hover {
+  background-color: #0056b3;
+}
 
 .App-logo {
   height: 40vmin;
