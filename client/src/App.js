@@ -1,171 +1,136 @@
-import React, { useState, useEffect } from "react";
-import AdminDashboard from "./components/AdminDashboard"
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
-import Web3 from "web3";
-import AdminNavbar from "./components/AdminNavbar";
-import RegisterOwner from "./components/RegisterOwner";
-import RegisterLand from "./components/RegisterLand";
-import "./App.css";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { ethers } from 'ethers';
+import Web3 from 'web3';
+import AdminNavbar from './components/AdminNavbar';
+import ClientNavbar from './components/ClientNavbar';
+import AdminDashboard from './components/AdminDashboard';
+import ClientDashboard from './components/ClientDashboard';
+import RegisterOwner from './components/RegisterOwner';
+import RegisterLand from './components/RegisterLand';
+import TransferOwnership from './components/TransferOwnership';
+import ViewLandHistory from './components/ViewLandHistory';
+import './App.css';
 
-const MyContract = require("./contracts/MyContract.json");
+const ADMIN_CONTRACT_ADDRESS = 'ADMIN_CONTRACT_ADDRESS';
+const CLIENT_CONTRACT_ADDRESS = 'CLIENT_CONTRACT_ADDRESS';
+const ADMIN_ABI = [/* Admin contract ABI */];
+const CLIENT_ABI = [/* Client contract ABI */];
+const ADMIN_WALLET = 'ADMIN_WALLET_ADDRESS';
 
 const App = () => {
+  const [web3, setWeb3] = useState(null);
+  const [adminContract, setAdminContract] = useState(null);
+  const [clientContract, setClientContract] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState(null);
   const [owners, setOwners] = useState([]);
   const [lands, setLands] = useState([]);
-  const [web3, setWeb3] = useState(null);
-  const [accounts, setAccounts] = useState([]);
-  const [contract, setContract] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isFirstRender, setIsFirstRender] = useState(true); // ✅ Fix: Track first render
 
   useEffect(() => {
-    setIsFirstRender(false);
+    const init = async () => {
+      if (window.ethereum) {
+        try {
+          const web3Instance = new Web3(window.ethereum);
+          const accounts = await web3Instance.eth.getAccounts();
+          
+          if (accounts.length > 0) {
+            await handleWalletConnection(web3Instance);
+          }
+        } catch (error) {
+          setError(error.message);
+        }
+      }
+    };
+    init();
   }, []);
 
-  return (
-    <Router>
-      <ForceRedirect isConnected={isConnected} isFirstRender={isFirstRender} />{" "}
-      {/* ✅ Redirects to `/wallet-connect` first */}
-      <AdminNavbar />
-      <Routes>
-        <Route
-          path="/wallet-connect"
-          element={
-            <WalletConnect
-              isConnected={isConnected}
-              setIsConnected={setIsConnected}
-              setWeb3={setWeb3}
-              setAccounts={setAccounts}
-              setContract={setContract}
-            />
-          }
-        />
-
-        <Route
-          path="/admin/registerOwner"
-          element={
-            <RegisterOwner
-              onRegisterOwner={(ownerData) => {
-                setOwners((prevOwners) => [...prevOwners, ownerData]);
-                alert("✅ Owner registered successfully!");
-              }}
-            />
-          }
-        />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route
-          path="/admin/registerLand"
-          element={
-            <RegisterLand
-              owners={owners}
-              onRegisterLand={(landData) => {
-                const ownerExists = owners.some(
-                  (owner) => owner.ownerId === landData.ownerId
-                );
-                if (!ownerExists) {
-                  alert("❌ Error: Owner ID not found!");
-                  return;
-                }
-                setLands((prevLands) => [...prevLands, landData]);
-                alert("✅ Land registered successfully!");
-              }}
-            />
-          }
-        />
-      </Routes>
-    </Router>
-  );
-};
-
-// ✅ Fix: Only redirect on second render
-const ForceRedirect = ({ isConnected, isFirstRender }) => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isConnected && !isFirstRender) {
-      navigate("/wallet-connect");
-    }
-  }, [isConnected, isFirstRender, navigate]);
-
-  return null;
-};
-
-// ✅ Fix: Ensure Wallet Connect button is visible
-const WalletConnect = ({
-  isConnected,
-  setIsConnected,
-  setWeb3,
-  setAccounts,
-  setContract,
-}) => {
-  const navigate = useNavigate();
-
-  const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert("⚠️ MetaMask not found! Please install it.");
-      return;
-    }
-
+  const handleWalletConnection = async (web3Instance) => {
     try {
-      const web3Instance = new Web3(window.ethereum);
-      await window.ethereum.request({ method: "eth_requestAccounts" });
-
-      const userAccounts = await web3Instance.eth.getAccounts();
-      setWeb3(web3Instance);
-      setAccounts(userAccounts);
-      setIsConnected(true);
-
-      console.log("✅ Connected to MetaMask:", userAccounts[0]);
-
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const accounts = await web3Instance.eth.getAccounts();
+      
+      // Admin contract setup
       const networkId = await web3Instance.eth.net.getId();
-      const deployedNetwork = MyContract.networks[networkId];
-
-      if (!deployedNetwork) {
-        alert("⚠️ Smart contract not deployed on this network.");
-        return;
-      }
-
-      const contractInstance = new web3Instance.eth.Contract(
-        MyContract.abi,
-        deployedNetwork.address
+      const adminDeployed = ADMIN_ABI.networks[networkId];
+      const adminContract = new web3Instance.eth.Contract(
+        ADMIN_ABI,
+        adminDeployed.address
       );
 
-      setContract(contractInstance);
+      // Client contract setup
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const clientContract = new ethers.Contract(
+        CLIENT_CONTRACT_ADDRESS,
+        CLIENT_ABI,
+        provider.getSigner()
+      );
 
-      // ✅ Redirect to `/admin/registerOwner` after successful wallet connection
-      navigate("/admin/registerOwner");
+      setWeb3(web3Instance);
+      setAdminContract(adminContract);
+      setClientContract(clientContract);
+      setIsConnected(true);
+      setIsAdmin(accounts[0].toLowerCase() === ADMIN_WALLET.toLowerCase());
     } catch (error) {
-      console.error("⚠️ Error connecting to MetaMask:", error);
-      alert("Error connecting to MetaMask. Please try again.");
+      setError(error.message);
     }
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      {" "}
-      {/* ✅ Fix: Ensure button is visible */}
-      {!isConnected ? (
-        <button
-          onClick={connectWallet}
-          style={{
-            padding: "10px 20px",
-            marginTop: "10em",
-            fontSize: "18px",
-            cursor: "pointer",
-          }}
-        >
-          Connect Wallet
-        </button>
-      ) : (
-        <p>🔗 Wallet Connected! Redirecting...</p>
-      )}
-    </div>
+    <Router>
+      {isAdmin ? <AdminNavbar /> : <ClientNavbar />}
+      
+      <div className="main-content">
+        {error && <div className="global-error">{error}</div>}
+        
+        <Routes>
+          {/* Admin Routes */}
+          <Route path="/admin/*" element={
+            <ProtectedRoute isAllowed={isAdmin} redirectPath="/client">
+              <AdminRoutes owners={owners} setOwners={setOwners} lands={lands} setLands={setLands} />
+            </ProtectedRoute>
+          }/>
+
+          {/* Client Routes */}
+          <Route path="/client/*" element={
+            <ProtectedRoute isAllowed={!isAdmin} redirectPath="/admin">
+              <ClientRoutes 
+                isConnected={isConnected}
+                connectWallet={() => handleWalletConnection(new Web3(window.ethereum))}
+                clientContract={clientContract}
+                error={error}
+                setError={setError}
+              />
+            </ProtectedRoute>
+          }/>
+
+          <Route path="/" element={<Navigate to={isAdmin ? "/admin" : "/client"} />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
+
+const ProtectedRoute = ({ children, isAllowed, redirectPath }) => {
+  const location = useLocation();
+  return isAllowed ? children : <Navigate to={redirectPath} state={{ from: location }} replace />;
+};
+
+const AdminRoutes = ({ owners, setOwners, lands, setLands }) => (
+  <Routes>
+    <Route index element={<AdminDashboard />} />
+    <Route path="register-owner" element={<RegisterOwner onRegisterOwner={setOwners} />} />
+    <Route path="register-land" element={<RegisterLand owners={owners} onRegisterLand={setLands} />} />
+  </Routes>
+);
+
+const ClientRoutes = ({ isConnected, connectWallet, clientContract, error, setError }) => (
+  <Routes>
+    <Route index element={<ClientDashboard isConnected={isConnected} connectWallet={connectWallet} />} />
+    <Route path="transfer" element={<TransferOwnership contract={clientContract} error={error} setError={setError} />} />
+    <Route path="history" element={<ViewLandHistory contract={clientContract} error={error} setError={setError} />} />
+  </Routes>
+);
 
 export default App;
