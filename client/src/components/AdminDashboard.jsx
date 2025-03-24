@@ -6,10 +6,10 @@ const AdminDashboard = () => {
     <div className="dashboard-container">
       <h1 class='hd'>Land Registry Administration</h1>
       <div className="dashboard-grid">
-        <Link to="/admin/registerOwner" className="dashboard-card">
+        <Link to="/admin/transfer-land-ownership" className="dashboard-card">
           <div className="card-content">
-            <h2>Register Owner</h2>
-            <p>Create new property owner records</p>
+            <h2>transfer land ownership</h2>
+            <p>Transfer land from one owner to another</p>
           </div>
         </Link>
         
