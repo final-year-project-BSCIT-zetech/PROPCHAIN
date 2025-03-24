@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import { useAppContext } from "../AppContext";
 
 const RegisterLand = () => {
-  const [titledeedNumber, setTitledeedNumber] = useState("");
-  const { contract, accounts } = useAppContext();
+  const [titledeedNumber, setTitledeedNumber,] = useState("");
+  const { contract, accounts,setRegisteredLands,registeredLands } = useAppContext();
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const [registeredLands, setRegisteredLands] = useState([]);
+ // const [registeredLands, setRegisteredLands] = useState([]);
 
   useEffect(() => {
     fetchRegisteredLands();

@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAppContext } from "../AppContext";
+
 
 const TransferLandOwnership = () => {
+    const { contract, accounts,registeredLands } = useAppContext();
+  
   const [formData, setFormData] = useState({
     titledeedNumber: "",
     newOwner: "",
@@ -19,6 +23,7 @@ const TransferLandOwnership = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Submitting:", formData);
+    console.log(registeredLands)
 
   };
 
