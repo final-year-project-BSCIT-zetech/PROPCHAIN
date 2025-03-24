@@ -1,5 +1,7 @@
-const MyContract = artifacts.require("MyContract");
+const LandRegistry = artifacts.require("LandRegistry");
 
-module.exports = function (deployer) {
-  deployer.deploy(MyContract);
+module.exports = async function (deployer, network, accounts) {
+  const defaultOwner = accounts[0]; // The first account in Truffle
+  await deployer.deploy(LandRegistry, defaultOwner);
+
 };
