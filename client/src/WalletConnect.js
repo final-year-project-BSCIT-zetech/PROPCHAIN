@@ -30,7 +30,7 @@ const WalletConnect = () => {
       setIsConnected(true);
       setContract(new web3Instance.eth.Contract(MyContract.abi, deployedNetwork.address));
 
-      navigate("/admin/registerOwner");
+      navigate("/admin");
     } catch (error) {
       console.error("⚠️ Error connecting to MetaMask:", error);
       alert("Error connecting to MetaMask. Please try again.");
