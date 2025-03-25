@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "../AppContext";
 
@@ -9,19 +9,20 @@ const RegisterLand = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [registeredLands, setRegisteredLands] = useState([]);
 
-  useEffect(() => {
-    fetchRegisteredLands();
-  }, []);
-
   // Fetch registered lands from the blockchain
-  const fetchRegisteredLands = async () => {
+  const fetchRegisteredLands = useCallback(async () => {
+    if (!contract) return;
     try {
       const lands = await contract.methods.getAllRegisteredLands().call();
       setRegisteredLands(lands);
     } catch (err) {
       console.error("Error fetching registered lands:", err);
     }
-  };
+  }, [contract]);
+
+  useEffect(() => {
+    fetchRegisteredLands();
+  }, [fetchRegisteredLands]);
 
   function onChange(e) {
     setTitledeedNumber(e.target.value);
@@ -41,7 +42,7 @@ const RegisterLand = () => {
     try {
       await contract.methods.registerLand(titledeedNumber).send({ from: accounts[0] });
       setSuccessMessage("Land registered successfully!");
-      
+
       // Refresh registered lands list
       fetchRegisteredLands();
     } catch (err) {

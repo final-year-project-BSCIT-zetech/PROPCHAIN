@@ -2,7 +2,7 @@ import React from "react";
 import Web3 from "web3";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "./AppContext";
-import MyContract from "./contracts/LandRegistry.json";
+import MyContract from "./contracts/MyContract.json";
 
 const WalletConnect = () => {
   const { setIsConnected, setWeb3, setAccounts, setContract } = useAppContext();
