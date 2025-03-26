@@ -2,7 +2,10 @@
 
 # dependencies
 /client/node_modules
+/client/src/contracts
 /client-side/node_modules
+/client-side/src/contracts
+
 /.pnp
 .pnp.js
 
