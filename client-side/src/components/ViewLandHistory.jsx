@@ -1,95 +1,75 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
 
-const ViewLandHistory = ({ contract, error, setError }) => {
-  const [landId, setLandId] = useState('');
+const ViewLandHistory = ({ contract }) => {
   const [history, setHistory] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const isValidLandId = (id) => /^\d{8}$/.test(id);
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (contract) {
+        try {
+          const filter = contract.filters.OwnershipTransferred();
+          const events = await contract.queryFilter(filter);
+          
+          const formattedHistory = events.map(event => ({
+            landId: event.args.landId.toString(),
+            from: event.args.from,
+            to: event.args.to,
+            txHash: event.transactionHash,
+            timestamp: new Date(event.args.timestamp * 1000).toLocaleDateString()
+          }));
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    setError(null);
-    
-    if (!contract) {
-      setError("Contract not initialized");
-      return;
-    }
+          setHistory(formattedHistory);
+        } catch (error) {
+          console.error("Error fetching history:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-    if (!isValidLandId(landId)) {
-      setError("Invalid Land ID (8 digits required)");
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const historyData = await contract.getLandHistory(landId);
-      setHistory(historyData.map(record => ({
-        previousOwner: record.previousOwner,
-        newOwner: record.newOwner,
-        timestamp: new Date(record.timestamp * 1000).toLocaleString()
-      })));
-    } catch (err) {
-      setError(err.message || "Failed to fetch history");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    fetchHistory();
+  }, [contract]);
 
   return (
-    <div className="form-container">
-      <h2>View Land History</h2>
-      {error && <div className="error-message">{error}</div>}
-      
-      <div className="search-container">
-        <input
-          type="text"
-          value={landId}
-          onChange={(e) => setLandId(e.target.value)}
-          placeholder="Enter 8-digit Land ID"
-          className={landId && !isValidLandId(landId) ? 'invalid' : ''}
-        />
-        <button 
-          onClick={handleSearch}
-          className="search-btn"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Searching...' : 'Search'}
-        </button>
-      </div>
-
-      {history.length > 0 && (
-        <div className="history-results">
-          <h3>Ownership History for Land ID: {landId}</h3>
-          <ul>
+    <div className="history-table">
+      <h2>Land Ownership History</h2>
+      {loading ? (
+        <p>Loading history...</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Land ID</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Date</th>
+              <th>Transaction</th>
+            </tr>
+          </thead>
+          <tbody>
             {history.map((record, index) => (
-              <li key={index} className="history-item">
-                <div className="history-record">
-                  <span className="label">From:</span>
-                  <span className="address">{record.previousOwner}</span>
-                </div>
-                <div className="history-record">
-                  <span className="label">To:</span>
-                  <span className="address">{record.newOwner}</span>
-                </div>
-                <div className="history-record">
-                  <span className="label">Date:</span>
-                  <span className="timestamp">{record.timestamp}</span>
-                </div>
-              </li>
+              <tr key={index}>
+                <td>{record.landId}</td>
+                <td>{`${record.from.slice(0, 6)}...${record.from.slice(-4)}`}</td>
+                <td>{`${record.to.slice(0, 6)}...${record.to.slice(-4)}`}</td>
+                <td>{record.timestamp}</td>
+                <td>
+                  <a
+                    href={`https://etherscan.io/tx/${record.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View
+                  </a>
+                </td>
+              </tr>
             ))}
-          </ul>
-        </div>
+          </tbody>
+        </table>
       )}
     </div>
   );
-};
-
-ViewLandHistory.propTypes = {
-  contract: PropTypes.object,
-  error: PropTypes.string,
-  setError: PropTypes.func.isRequired
 };
 
 export default ViewLandHistory;

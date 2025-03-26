@@ -1,36 +1,43 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
 
-export default function ClientDashboard({ isConnected, connectWallet }) {
+const ClientDashboard = ({ contract, account }) => {
+  const [lands, setLands] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLands = async () => {
+      if (contract && account) {
+        try {
+          const lands = await contract.getOwnedLands(account);
+          setLands(lands.map(land => land.toString()));
+        } catch (error) {
+          console.error("Error fetching lands:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchLands();
+  }, [contract, account]);
+
   return (
-    <div className="client-dashboard">
-      <h1>Land Registry System</h1>
-      
-      {!isConnected ? (
-        <div className="connection-prompt">
-          <p>Connect your wallet to continue</p>
-          <button onClick={connectWallet} className="connect-btn">
-            Connect Wallet
-          </button>
-        </div>
+    <div className="dashboard">
+      <h2>Your Land Assets</h2>
+      {loading ? (
+        <p>Loading lands...</p>
       ) : (
-        <div className="dashboard-cards">
-          <Link to="/client/transfer" className="dashboard-card">
-            <h2>Transfer Ownership</h2>
-            <p>Transfer land rights to new owner</p>
-          </Link>
-          <Link to="/client/history" className="dashboard-card">
-            <h2>View History</h2>
-            <p>Access ownership history records</p>
-          </Link>
+        <div className="lands-grid">
+          {lands.map(landId => (
+            <div key={landId} className="land-card">
+              <h3>Land ID: {landId}</h3>
+              <p>Owner: {account}</p>
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
-}
-
-ClientDashboard.propTypes = {
-  isConnected: PropTypes.bool.isRequired,
-  connectWallet: PropTypes.func.isRequired
 };
+
+export default ClientDashboard;
