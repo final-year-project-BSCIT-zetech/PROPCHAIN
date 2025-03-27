@@ -6,31 +6,37 @@ import { useAppContext } from "../AppContext";
 import MyContract from "../contracts/LandRegistry.json";
 
 const ClientNavbar = () => {
-  const { setIsConnected, setWeb3, setAccounts, setContract, accounts,isConnected} = useAppContext();
+  const { setIsConnected, setWeb3, setAccounts, setContract, accounts,isConnected,id,setId,contract} = useAppContext();
   const navigate = useNavigate();
 
   const connectWallet = async () => {
     if (!window.ethereum) {
       return alert("⚠️ MetaMask not found! Please install it.");
     }
-
+  
     try {
       const web3Instance = new Web3(window.ethereum);
       await window.ethereum.request({ method: "eth_requestAccounts" });
-
+  
       const userAccounts = await web3Instance.eth.getAccounts();
       const networkId = await web3Instance.eth.net.getId();
       const deployedNetwork = MyContract.networks[networkId];
-
+  
       if (!deployedNetwork) {
         return alert("⚠️ Smart contract not deployed on this network.");
       }
-
+  
       setWeb3(web3Instance);
       setAccounts(userAccounts);
       setIsConnected(true);
-      setContract(new web3Instance.eth.Contract(MyContract.abi, deployedNetwork.address));
-
+      const newContract = new web3Instance.eth.Contract(MyContract.abi, deployedNetwork.address);
+      setContract(newContract);
+  
+      // Now that the contract is set, you can call the method
+      const readId = await newContract.methods.getMyNationalId().call({ from: userAccounts[0] });
+      console.log(readId); // Log the ID or handle it as needed
+      setId(readId)
+  
       navigate("/");
     } catch (error) {
       console.error("⚠️ Error connecting to MetaMask:", error);
@@ -48,7 +54,7 @@ const ClientNavbar = () => {
         <li>
           {isConnected ? (
             <span className="wallet-address">
-              {`${accounts}`}
+              {`${id}`}
             </span>
           ) : (
             <button className="connect-btn" onClick={connectWallet}>
