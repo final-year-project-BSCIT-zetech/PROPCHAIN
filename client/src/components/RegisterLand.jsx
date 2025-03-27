@@ -41,7 +41,7 @@ const RegisterLand = () => {
     try {
       await contract.methods.registerLand(titledeedNumber).send({ from: accounts[0] });
       setSuccessMessage("Land registered successfully!");
-      
+      setTitledeedNumber('')
       // Refresh registered lands list
       fetchRegisteredLands();
     } catch (err) {
