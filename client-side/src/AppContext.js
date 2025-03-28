@@ -10,11 +10,13 @@ export const AppProvider = ({ children }) => {
   const [accounts, setAccounts] = useState([]);
   const [contract, setContract] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-    const [registeredLands, setRegisteredLands] = useState([]);
+  const [registeredLands, setRegisteredLands] = useState([]);
+  const [id, setId] = useState(null);
+
   
 
   return (
-    <AppContext.Provider value={{ owners, setOwners, lands, setLands, web3, setWeb3, accounts, setAccounts, contract, setContract, isConnected, setIsConnected,registeredLands, setRegisteredLands }}>
+    <AppContext.Provider value={{ owners, setOwners, lands, setLands, web3, setWeb3, accounts, setAccounts, contract, setContract, isConnected, setIsConnected,registeredLands, setRegisteredLands,id,setId}}>
       {children}
     </AppContext.Provider>
   );
