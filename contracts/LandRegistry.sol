@@ -68,19 +68,18 @@ contract LandRegistry {
     }
 
     function registerLand(string memory _titleDeedNumber) public onlyVerifiedOwner {
-    require(!lands[_titleDeedNumber].isRegistered, "Error: Land already registered!");
+        require(!lands[_titleDeedNumber].isRegistered, "Error: Land already registered!");
 
-    Land storage newLand = lands[_titleDeedNumber];
-    newLand.titleDeedNumber = _titleDeedNumber;
-    newLand.currentOwner = msg.sender;
-    newLand.nationalId = owners[msg.sender];
-    newLand.isRegistered = true;
+        Land storage newLand = lands[_titleDeedNumber];
+        newLand.titleDeedNumber = _titleDeedNumber;
+        newLand.currentOwner = msg.sender;
+        newLand.nationalId = owners[msg.sender];
+        newLand.isRegistered = true;
 
-    registeredLands.push(_titleDeedNumber);
+        registeredLands.push(_titleDeedNumber);
 
-    emit LandRegistered(_titleDeedNumber, msg.sender);
-}
-
+        emit LandRegistered(_titleDeedNumber, msg.sender);
+    }
 
     function transferOwnership(
         string memory _titleDeedNumber,
@@ -136,5 +135,26 @@ contract LandRegistry {
 
     function getAllRegisteredLands() public view returns (string[] memory) {
         return registeredLands;
+    }
+
+    function getLandsByOwner() public view onlyVerifiedOwner returns (string[] memory) {
+        uint count = 0;
+        for (uint i = 0; i < registeredLands.length; i++) {
+            if (lands[registeredLands[i]].currentOwner == msg.sender) {
+                count++;
+            }
+        }
+
+        string[] memory userLands = new string[](count);
+        uint index = 0;
+
+        for (uint i = 0; i < registeredLands.length; i++) {
+            if (lands[registeredLands[i]].currentOwner == msg.sender) {
+                userLands[index] = registeredLands[i];
+                index++;
+            }
+        }
+
+        return userLands;
     }
 }
