@@ -11,6 +11,7 @@
 }
 
 .app {
+  border-radius: 5em;
   min-height: 100vh;
   background-color: var(--background-color);
 }
@@ -18,7 +19,7 @@
 .navbar {
   background: var(--primary-color);
   padding: 1rem 2rem;
-  color: white;
+  color: rgb(0, 0, 0);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -31,7 +32,7 @@
 }
 
 .nav-links a {
-  color: white;
+  color: rgb(0, 0, 0);
   text-decoration: none;
   font-weight: 500;
 }
@@ -51,17 +52,16 @@
   cursor: pointer;
 }
 
-.main-content {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+
 
 .dashboard {
   background: white;
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-top: 5em;
+  margin-left: 2em;
+  margin-right: 2em;
 }
 
 .lands-grid {
@@ -84,6 +84,7 @@
   border-radius: 10px;
   max-width: 600px;
   margin: 0 auto;
+  margin-top: 5em;
 }
 
 .form-group {

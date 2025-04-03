@@ -6,20 +6,20 @@ import TransferOwnership from "./components/TransferOwnership";
 import { AppProvider } from "./AppContext";
 import ViewLandHistory from "./components/ViewLandHistory";
 import "./App.css";
+import LandingPage from "./components/LandingPage";
 function App() {
   return (
     <AppProvider>
       <Router>
         <div className="app">
           <ClientNavbar />
-          <div className="main-content">
             <Routes>
               <Route path="/dashboard" element={<ClientDashboard />} />
               <Route path="/transfer" element={<TransferOwnership />} />
               <Route path="/history" element={<ViewLandHistory />} />
-              <Route path="/" element={<ClientDashboard />} />
+              <Route path="/dash" element={<ClientDashboard />} />
+              <Route path="/" element={<LandingPage/>} />
             </Routes>
-          </div>
         </div>
       </Router>
     </AppProvider>
