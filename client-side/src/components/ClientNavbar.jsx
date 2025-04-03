@@ -62,7 +62,7 @@ const ClientNavbar = () => {
       if (readId) {
         setId(readId);
         setShowInput(false);
-        navigate("/"); // Navigate once ID is fetched
+        navigate("/landingpage"); // Navigate once ID is fetched
       }
     } catch (error) {
       console.error("Error registering ID:", error);
@@ -71,7 +71,7 @@ const ClientNavbar = () => {
 
   return (
     <nav className="navbar">
-      <div className="navbar-brand">Land Registry</div>
+      <div className="nav-links"><Link to="/">Land Registry</Link></div>
       <ul className="nav-links">
         <li><Link to="/dashboard">Dashboard</Link></li>
         <li><Link to="/transfer">Transfer</Link></li>

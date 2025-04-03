@@ -13,7 +13,7 @@ const ViewLandHistory = () => {
     e.preventDefault();
     setError(null);
     setLandHistory([]);
-    setLoading(true);    
+    setLoading(true);
 
     try {
       const result = await contract.methods.getLandHistory(landId).call();
@@ -30,14 +30,17 @@ const ViewLandHistory = () => {
     <div className="history-container">
       <h2>Land Ownership History</h2>
 
-      <form onSubmit={onSubmit}>
+      <form className="transfer-form" onSubmit={onSubmit}>
         <label>Land ID:</label>
+        <br />
         <input
           type="text"
           value={landId}
           onChange={(e) => setLandId(e.target.value)}
           required
         />
+        <br />
+        <br />
         <button type="submit" disabled={loading}>
           {loading ? "Fetching..." : "Get History"}
         </button>
@@ -48,12 +51,14 @@ const ViewLandHistory = () => {
       {landHistory.length > 0 && (
         <div className="history-list">
           <h3>Ownership Transfers:</h3>
-          <ul>
+          <ul style={{listStyleType: "none"}}>
             {landHistory.map((entry, index) => (
               <li key={index}>
-                <strong>Previous Owner ID:</strong> {entry.previousOwnerId} <br />
+                <strong>Previous Owner ID:</strong> {entry.previousOwnerId}{" "}
+                <br />
                 <strong>New Owner:</strong> {entry.newOwner} <br />
-                <strong>Date:</strong> {new Date(Number(entry.timestamp) * 1000).toLocaleString()}
+                <strong>Date:</strong>{" "}
+                {new Date(Number(entry.timestamp) * 1000).toLocaleString()}
               </li>
             ))}
           </ul>

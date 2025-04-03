@@ -11,10 +11,6 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-.main-content {
-  padding: 20px;
-  margin-top: 60px; /* Account for fixed navbar */
-}
 
 .dashboard-container {
   max-width: 1200px;
