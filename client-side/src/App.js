@@ -17,7 +17,6 @@ function App() {
               <Route path="/dashboard" element={<ClientDashboard />} />
               <Route path="/transfer" element={<TransferOwnership />} />
               <Route path="/history" element={<ViewLandHistory />} />
-              <Route path="/dash" element={<ClientDashboard />} />
               <Route path="/" element={<LandingPage/>} />
             </Routes>
         </div>

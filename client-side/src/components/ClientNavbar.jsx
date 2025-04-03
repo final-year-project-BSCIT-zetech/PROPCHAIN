@@ -38,7 +38,7 @@ const ClientNavbar = () => {
         const readId = await newContract.methods.getMyNationalId().call({ from: userAccounts[0] });
         if (readId) {
           setId(readId);
-          navigate("/"); // Navigate once ID is fetched
+          navigate("/dashboard"); // Navigate once ID is fetched
         } else {
           setShowInput(true); // Show input field if ID is not retrieved
         }
@@ -62,7 +62,7 @@ const ClientNavbar = () => {
       if (readId) {
         setId(readId);
         setShowInput(false);
-        navigate("/landingpage"); // Navigate once ID is fetched
+        navigate("/"); // Navigate once ID is fetched
       }
     } catch (error) {
       console.error("Error registering ID:", error);
@@ -86,6 +86,7 @@ const ClientNavbar = () => {
                   value={manualId}
                   onChange={(e) => setManualId(e.target.value)}
                 />
+                <p>seems you are a new user enter your id to be added to the system</p>
                 <button type='submit'>Submit</button>
               </form>
             ) : (
